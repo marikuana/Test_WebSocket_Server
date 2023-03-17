@@ -3,23 +3,24 @@
 public class WebSocketSession
 {
     private WebSocket _webSocket;
+    private ILogger _logger;
 
-    public WebSocketSession(WebSocket webSocket)
+    public WebSocketSession(WebSocket webSocket, ILogger<WebSocketSession> logger)
     {
         _webSocket = webSocket;
-        Recieve();
+        _logger = logger;
     }
 
-    private async void Recieve()
+    public async Task RecieveAsync()
     {
-        while (true)
+        byte[] buf = new byte[1024];
+
+        while (_webSocket.State == WebSocketState.Open)
         {
-            if (_webSocket.CloseStatus != null)
+            var result = await _webSocket.ReceiveAsync(buf, CancellationToken.None);
+
+            if (result.MessageType == WebSocketMessageType.Close)
                 break;
-
-            byte[] buf = new byte[1024];
-
-            await _webSocket.ReceiveAsync(buf, CancellationToken.None);
 
             await _webSocket.SendAsync(buf, WebSocketMessageType.Binary, true, CancellationToken.None);
         }
