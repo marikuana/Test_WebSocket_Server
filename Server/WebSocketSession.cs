@@ -22,7 +22,10 @@ public class WebSocketSession
             if (result.MessageType == WebSocketMessageType.Close)
                 break;
 
-            await _webSocket.SendAsync(buf, WebSocketMessageType.Binary, true, CancellationToken.None);
+            byte[] receiveBuf = new byte[result.Count];
+            Array.Copy(buf, receiveBuf, receiveBuf.Length);
+
+            await _webSocket.SendAsync(receiveBuf, WebSocketMessageType.Binary, true, CancellationToken.None);
         }
     }
 }
