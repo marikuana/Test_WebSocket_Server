@@ -1,6 +1,12 @@
 ﻿public class TextMessageModel
 {
-    public string Text { get; set; }
+    private string text;
+
+    public string Text
+    {
+        get => text;
+        set => text = value;
+    }
 
     public override string ToString()
     {
