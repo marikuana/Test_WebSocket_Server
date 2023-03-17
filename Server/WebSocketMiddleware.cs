@@ -2,11 +2,13 @@
 {
     private RequestDelegate _next;
     private WebSocketSessionFactory _sessionFactory;
+    private ILogger<WebSocketMiddleware> _logger;
 
-    public WebSocketMiddleware(RequestDelegate next, WebSocketSessionFactory sessionFactory)
+    public WebSocketMiddleware(RequestDelegate next, WebSocketSessionFactory sessionFactory, ILogger<WebSocketMiddleware> logger)
     {
         _next = next;
         _sessionFactory = sessionFactory;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -15,8 +17,9 @@
         {
             var webSocket = await context.WebSockets.AcceptWebSocketAsync();
             var session = _sessionFactory.GetSession(webSocket);
-            context.Items.TryAdd("WebSocketSession", session);
+            await session.RecieveAsync();
         }
-        await _next(context);
+        else
+            await _next(context);
     }
 }
